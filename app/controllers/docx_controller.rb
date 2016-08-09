@@ -24,7 +24,7 @@ class DocxController < ApplicationController
     if File.exist?(path_to_file)
       send_file(path_to_file)
     else
-      flash[:error] = 'A template for ' + tracker + ' issues does not exist.'
+      flash[:error] = 'There is no template for ' + issue.tracker.name + ' issues.'
       redirect_to '/settings/plugin/export_docx'
     end
   end
