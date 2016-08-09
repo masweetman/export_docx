@@ -54,15 +54,29 @@ module DocxHelper
         else
           #write custom issue fields
           custom_field = CustomField.find_by_name(bookmark.tr('_',' '))
-          unless custom_field.nil?
+          unless custom_field.nil? || issue.custom_field_value(custom_field.id).nil? || issue.custom_field_value(custom_field.id).empty? || issue.custom_field_value(custom_field.id).first.empty?
             if custom_field.field_format == 'text'
-              doc.bookmarks[bookmark].insert_multiple_lines(issue.custom_field_value(custom_field.id).lines.map(&:chomp)) unless issue.custom_field_value(custom_field.id).nil?
+              doc.bookmarks[bookmark].insert_multiple_lines(issue.custom_field_value(custom_field.id).lines.map(&:chomp))
             elsif custom_field.field_format == 'list' && custom_field.multiple?
-              doc.bookmarks[bookmark].insert_multiple_lines(issue.custom_field_value(custom_field.id)) unless issue.custom_field_value(custom_field.id).nil?
+              doc.bookmarks[bookmark].insert_multiple_lines(issue.custom_field_value(custom_field.id))
             elsif custom_field.field_format == 'user'
-              doc.bookmarks[bookmark].insert_text_after(User.find(issue.custom_field_value(custom_field.id)).to_s) unless issue.custom_field_value(custom_field.id).nil?
+              if custom_field.multiple?
+                users = []
+                users = issue.custom_field_value(custom_field.id).map{ |u| User.find(u).name }
+                doc.bookmarks[bookmark].insert_multiple_lines(users) unless users == []
+              else
+                doc.bookmarks[bookmark].insert_text_after(User.find(issue.custom_field_value(custom_field.id)).to_s)
+              end
+            elsif custom_field.field_format == 'version'
+              if custom_field.multiple?
+                versions = []
+                versions = issue.custom_field_value(custom_field.id).map{ |v| Version.find(v).name }
+                doc.bookmarks[bookmark].insert_multiple_lines(versions) unless versions == []
+              else
+                doc.bookmarks[bookmark].insert_text_after(Version.find(issue.custom_field_value(custom_field.id)).to_s)
+              end
             elsif custom_field.field_format == 'date'
-              doc.bookmarks[bookmark].insert_text_after(issue.custom_field_value(custom_field.id).to_date.strftime('%m/%d/%Y')) unless issue.custom_field_value(custom_field.id).nil? || issue.custom_field_value(custom_field.id).empty?
+              doc.bookmarks[bookmark].insert_text_after(issue.custom_field_value(custom_field.id).to_date.strftime('%m/%d/%Y'))
             elsif custom_field.field_format == 'bool'
               if doc.bookmarks[bookmark].get_run_before.node.xpath('descendant::*').last.attributes['val'].nil?
                 if issue.custom_field_value(custom_field.id) == '1'
@@ -71,7 +85,7 @@ module DocxHelper
                   doc.bookmarks[bookmark].insert_text_after('No')
                 end
               else
-                doc.bookmarks[bookmark].get_run_before.node.xpath('descendant::*').last.attributes['val'].value = issue.custom_field_value(custom_field.id).to_s unless issue.custom_field_value(custom_field.id).nil?
+                doc.bookmarks[bookmark].get_run_before.node.xpath('descendant::*').last.attributes['val'].value = issue.custom_field_value(custom_field.id).to_s
               end
             else
               doc.bookmarks[bookmark].insert_text_after(issue.custom_field_value(custom_field.id).to_s)

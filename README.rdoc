@@ -10,7 +10,6 @@ This Redmine plugin allows you to export issues to Microsoft Word files.
 
 == Creating templates
 
-* Create a template using Microsoft Word in the .docx file format
-* Insert bookmarks into your docx file. Make your bookmark names match your Redmine issue field names
+* Create a Micorsoft Word template. Refer to <code>template_example.docx</code> for details.
 * Go to Administration --> Plugins --> Export DOCX --> Configure
 * Upload your template
