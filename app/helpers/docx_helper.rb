@@ -41,6 +41,10 @@ module DocxHelper
           doc.bookmarks[bookmark].insert_text_after(issue.start_date.strftime('%m/%d/%Y')) unless issue.start_date.nil?
         when 'due_date'
           doc.bookmarks[bookmark].insert_text_after(issue.due_date.strftime('%m/%d/%Y')) unless issue.due_date.nil?
+        when 'created_on'
+          doc.bookmarks[bookmark].insert_text_after(issue.created_on.strftime('%m/%d/%Y')) unless issue.created_on.nil?
+        when 'closed_on'
+          doc.bookmarks[bookmark].insert_text_after(issue.closed_on.strftime('%m/%d/%Y')) unless issue.closed_on.nil?
         when 'percent_done', 'done_ratio'
           doc.bookmarks[bookmark].insert_text_after(issue.done_ratio.to_s + '%') unless issue.done_ratio.nil?
         when 'estimated_time', 'estimated_hours'
