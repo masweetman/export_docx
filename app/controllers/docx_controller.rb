@@ -2,13 +2,15 @@ include DocxHelper
 
 class DocxController < ApplicationController
   #unloadable
-  
+
   def template_upload
     uploaded_io = params[:template]
     filename = params[:tracker] + '.docx'
     if File.extname(uploaded_io.original_filename) == '.docx'
+      folder_structure
       File.open(Rails.root.join('files', 'export_docx', 'templates', filename), 'wb') do |file|
         file.write(uploaded_io.read)
+        flash[:notice] = filename + ' uploaded successfully.'
       end
     else
       flash[:error] = 'Template must be a .docx file.'

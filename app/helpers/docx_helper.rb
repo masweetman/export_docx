@@ -2,6 +2,11 @@ require 'docx'
 
 module DocxHelper
 
+  def folder_structure
+    FileUtils.mkdir_p 'files/export_docx/templates'
+    FileUtils.mkdir_p 'files/export_docx/export'
+  end
+
   def issue_to_docx(issue)
     FileUtils.rm_rf(Dir.glob('files/export_docx/export/*'))
     path_to_file = 'files/export_docx/templates/' + issue.tracker.name + '.docx'
@@ -44,17 +49,25 @@ module DocxHelper
           doc.bookmarks[bookmark].insert_text_after(issue.spent_hours.to_s) unless issue.spent_hours.nil?
         else
           #write custom issue fields
-          custom_field = CustomField.find_by_name(bookmark)
+          custom_field = CustomField.find_by_name(bookmark.tr('_',' '))
           unless custom_field.nil?
             if custom_field.field_format == 'text'
               doc.bookmarks[bookmark].insert_multiple_lines(issue.custom_field_value(custom_field.id).lines.map(&:chomp))
+            elsif custom_field.field_format == 'list' && custom_field.multiple?
+              doc.bookmarks[bookmark].insert_multiple_lines(issue.custom_field_value(custom_field.id))
+            elsif custom_field.field_format == 'user'
+              doc.bookmarks[bookmark].insert_text_after(User.find(issue.custom_field_value(custom_field.id)).to_s)
+            elsif custom_field.field_format == 'date'
+              doc.bookmarks[bookmark].insert_text_after(issue.custom_field_value(custom_field.id).to_date.strftime('%m/%d/%Y'))
+            elsif custom_field.field_format == 'bool'
+              doc.bookmarks[bookmark].get_run_before.node.xpath('descendant::*').last.attributes['val'].value = issue.custom_field_value(custom_field.id)
             else
               doc.bookmarks[bookmark].insert_text_after(issue.custom_field_value(custom_field.id).to_s)
             end
           end
         end
       end
-      doc.save('files/export_docx/export/'+ issue.project.name + ' - ' + issue.tracker.name + ' #' + issue.id.to_s + '.docx')
+      doc.save('files/export_docx/export/' + issue.project.name + ' - ' + issue.tracker.name + ' #' + issue.id.to_s + '.docx')
     else
       flash[:error] = 'A template for ' + issue.tracker.name + ' issues does not exist. Please notify your Redmine administrator.'
       redirect_to issue

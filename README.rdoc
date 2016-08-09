@@ -5,7 +5,7 @@ This Redmine plugin allows you to export issues to Microsoft Word files.
 == Installation
 
 * Clone into your plugins folder: <code>git clone https://github.com/masweetman/export_docx.git</code>
-* Run <code>bundle install</code>
+* Run <code>bundle update</code>
 * Restart Redmine
 
 == Creating templates
