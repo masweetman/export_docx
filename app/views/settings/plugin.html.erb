@@ -1,0 +1,14 @@
+<%= title [l(:label_plugins), {:controller => 'admin', :action => 'plugins'}], @plugin.name %>
+
+<% if @plugin.id == :export_docx %>
+  <%= render :partial => @partial, :locals => {:settings => @settings}%>
+<% else %>
+  <div id="settings">
+  <%= form_tag({:action => 'plugin'}) do %>
+  <div class="box tabular settings">
+  <%= render :partial => @partial, :locals => {:settings => @settings}%>
+  </div>
+  <%= submit_tag l(:button_apply) %>
+  <% end %>
+  </div>
+<% end %>

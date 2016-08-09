@@ -1,0 +1,1 @@
+gem 'docx', '~> 0.2.07', :require => ["docx"]

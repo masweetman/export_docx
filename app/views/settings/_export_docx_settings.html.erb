@@ -1,0 +1,29 @@
+<% @trackers = Tracker.all.order(:name) %>
+
+<table class="list">
+  <thead><tr>
+    <th></th>
+    <th>Current Template</th>
+    <th>New Template</th>
+  </tr></thead>
+
+  <% @trackers.each do |tracker| %>
+    <% path_to_file = 'files/export_docx/templates/' + tracker.name + '.docx' %>
+    <tr class="<%= cycle("odd", "even") %>">
+      <th><%= tracker.name %></th>
+      <td>
+        <% if File.exist?(path_to_file) %>
+          <%= link_to 'Download', '/settings/plugin/export_docx/download?tracker=' + tracker.name %>
+        <% end %>
+      </td>
+      <td>
+        <%= form_tag('/settings/plugin/export_docx/upload', multipart: true) do %>
+          <%= hidden_field_tag :tracker, tracker.name %>
+          <%= file_field_tag :template %>
+          <%= submit_tag 'Upload' %>
+        <% end %>
+      </td>
+    </tr>
+  <% end %>
+
+</table>
