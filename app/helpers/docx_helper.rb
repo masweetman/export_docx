@@ -19,7 +19,7 @@ module DocxHelper
         when 'subject'
           doc.bookmarks[bookmark].insert_text_after(issue.subject) unless issue.subject.nil?
         when 'description'
-          doc.bookmarks[bookmark].insert_text_after(issue.description) unless issue.description.nil?
+          doc.bookmarks[bookmark].insert_multiple_lines(issue.description.lines.map(&:chomp)) unless issue.description.nil?
         when 'status'
           doc.bookmarks[bookmark].insert_text_after(issue.status.name) unless issue.status.nil?
         when 'priority'
@@ -44,9 +44,13 @@ module DocxHelper
           doc.bookmarks[bookmark].insert_text_after(issue.spent_hours.to_s) unless issue.spent_hours.nil?
         else
           #write custom issue fields
-          unless CustomField.find_by_name(bookmark).nil?
-            custom_field_id = CustomField.find_by_name(bookmark).id
-            doc.bookmarks[bookmark].insert_text_after(issue.custom_field_value(custom_field_id).to_s)
+          custom_field = CustomField.find_by_name(bookmark)
+          unless custom_field.nil?
+            if custom_field.field_format == 'text'
+              doc.bookmarks[bookmark].insert_multiple_lines(issue.custom_field_value(custom_field.id).lines.map(&:chomp))
+            else
+              doc.bookmarks[bookmark].insert_text_after(issue.custom_field_value(custom_field.id).to_s)
+            end
           end
         end
       end
