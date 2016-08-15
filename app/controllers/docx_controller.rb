@@ -15,7 +15,7 @@ class DocxController < ApplicationController
     else
       flash[:error] = 'Template must be a .docx file.'
     end
-    redirect_to '/settings/plugin/export_docx'
+    redirect_to plugin_settings_path(Redmine::Plugin.find('export_docx'))
   end
   
   def template_download
@@ -25,7 +25,7 @@ class DocxController < ApplicationController
       send_file(path_to_file)
     else
       flash[:error] = 'There is no template for ' + issue.tracker.name + ' issues.'
-      redirect_to '/settings/plugin/export_docx'
+      redirect_to plugin_settings_path(Redmine::Plugin.find('export_docx'))
     end
   end
   

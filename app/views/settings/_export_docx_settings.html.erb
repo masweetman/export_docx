@@ -13,11 +13,11 @@
       <th><%= tracker.name %></th>
       <td>
         <% if File.exist?(path_to_file) %>
-          <%= link_to 'Download', '/settings/plugin/export_docx/download?tracker=' + tracker.name %>
+          <%= link_to 'Download', { :controller => 'docx', :action => 'template_download', :tracker => tracker.name } %>
         <% end %>
       </td>
       <td>
-        <%= form_tag('/settings/plugin/export_docx/upload', multipart: true) do %>
+        <%= form_tag({ :controller => 'docx', :action => 'template_upload' }, multipart: true) do %>
           <%= hidden_field_tag :tracker, tracker.name %>
           <%= file_field_tag :template %>
           <%= submit_tag 'Upload' %>
