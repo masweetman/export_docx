@@ -1,29 +1,40 @@
 <% @trackers = Tracker.all.order(:name) %>
 
+<div class="box tabular">
+  <%= form_tag({ :controller => 'docx', :action => 'template_upload' }, multipart: true) do %>
+  <p>
+    <label>Tracker:</label>
+    <%= select_tag :tracker, options_for_select(@trackers.map(&:name), :onchange => params[:tracker]) %>
+  </p>
+  <p>
+    <label>File:</label>
+    <%= file_field_tag :template %>
+  </p>
+  <p>
+    <label>Use for all trackers:</label>
+    <%= check_box_tag :use_for_all %>
+  </p>
+  <p>
+    <%= submit_tag 'Upload' %>
+  </p>
+  <% end %>
+</div>
+
 <table class="list">
   <thead><tr>
-    <th></th>
+    <th>Tracker</th>
     <th>Current Template</th>
-    <th>New Template</th>
   </tr></thead>
 
   <% @trackers.each do |tracker| %>
     <% path_to_file = 'files/export_docx/templates/' + tracker.name + '.docx' %>
     <tr class="<%= cycle("odd", "even") %>">
-      <th><%= tracker.name %></th>
+      <td><%= tracker.name %></td>
       <td>
         <% if File.exist?(path_to_file) %>
           <%= link_to 'Download', { :controller => 'docx', :action => 'template_download', :tracker => tracker.name } %>
         <% end %>
       </td>
-      <td>
-        <%= form_tag({ :controller => 'docx', :action => 'template_upload' }, multipart: true) do %>
-          <%= hidden_field_tag :tracker, tracker.name %>
-          <%= file_field_tag :template %>
-          <%= submit_tag 'Upload' %>
-        <% end %>
-      </td>
     </tr>
   <% end %>
-
 </table>
