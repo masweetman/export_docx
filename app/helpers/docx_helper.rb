@@ -1,6 +1,8 @@
 require 'docx'
 
 module DocxHelper
+  include IssuesHelper
+  include CustomFieldsHelper
 
   def reset_template_names
     templates = list_templates
@@ -80,56 +82,7 @@ module DocxHelper
           issue.journals.each do |journal|
             lines << "##{index} - #{format_time(journal.created_on)} - #{journal.user}"
             journal.details.each do |detail|
-              old_value = "set" if detail.old_value.to_s == ""
-              case detail.property
-              when 'attr'
-                case detail.prop_key
-                when 'tracker_id'
-                  old_value = "changed from #{Tracker.find(detail.old_value)}" unless detail.old_value.to_s == ""
-                  lines << "- Tracker #{old_value} to #{Tracker.find(detail.value)}"
-                when 'project_id'
-                  old_value = "changed from #{Project.find(detail.old_value)}" unless detail.old_value.to_s == ""
-                  lines << "- Project #{old_value} to #{Project.find(detail.value)}"
-                when 'subject'
-                  old_value = "changed from #{detail.old_value}" unless detail.old_value.to_s == ""
-                  lines << "- Subject #{old_value} to #{detail.value}"
-                when 'description'
-                  lines << "- Description updated"
-                when 'due_date'
-                  old_value = "changed from #{format_time(detail.old_value)}" unless detail.old_value.to_s == ""
-                  lines << "- Due date #{old_value} to #{detail.value}"
-                when 'category_id'
-                  old_value = "changed from #{IssueCategory.find(detail.old_value)}" unless detail.old_value.to_s == ""
-                  lines << "- Category #{old_value} to #{IssueCategory.find(detail.value)}"
-                when 'status_id'
-                  old_value = "changed from #{IssueStatus.find(detail.old_value)}" unless detail.old_value.to_s == ""
-                  lines << "- Status #{old_value} to #{IssueStatus.find(detail.value)}"
-                when 'assigned_to_id'
-                  old_value = "changed from #{User.find(detail.old_value)}" unless detail.old_value.to_s == ""
-                  lines << "- Assignee #{old_value} to #{User.find(detail.value)}"
-                when 'priority_id'
-                  old_value = "changed from #{IssuePriority.find(detail.old_value)}" unless detail.old_value.to_s == ""
-                  lines << "- Priority #{old_value} to #{IssuePriority.find(detail.value)}"
-                when 'fixed_version_id'
-                  old_value = "changed from #{Version.find(detail.old_value)}" unless detail.old_value.to_s == ""
-                  lines << "- Target version #{old_value} to #{Version.find(detail.value)}"
-                when 'start_date'
-                  old_value = "changed from #{format_time(detail.old_value)}" unless detail.old_value.to_s == ""
-                  lines << "- Start date #{old_value} to #{detail.value}"
-                when 'done_ratio'
-                  old_value = "changed from #{detail.old_value}" unless detail.old_value.to_s == ""
-                  lines << "- % Done #{old_value} to #{detail.value}"
-                when 'estimated_hours'
-                  old_value = "changed from #{detail.old_value}" unless detail.old_value.to_s == ""
-                  lines << "- Estimated time #{old_value} to #{detail.value} h"
-                when 'parent_id'
-                  old_value = "changed from ##{detail.old_value}" unless detail.old_value.to_s == ""
-                  lines << "- Parent task #{old_value} to ##{detail.value}"
-                end
-              when 'cf'
-                old_value = "changed from #{detail.old_value}" unless detail.old_value.to_s == ""
-                lines << "- #{CustomField.find(detail.prop_key).name} #{old_value} to #{detail.value}"
-              end
+              lines << "- " + show_detail(detail, true)
             end
             lines += journal.notes.lines.map(&:chomp)
             index += 1
