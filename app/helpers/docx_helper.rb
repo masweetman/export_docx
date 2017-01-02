@@ -25,6 +25,11 @@ module DocxHelper
           doc.bookmarks[bookmark].insert_text_after(issue.subject) unless issue.subject.nil?
         when 'description'
           doc.bookmarks[bookmark].insert_multiple_lines(issue.description.lines.map(&:chomp)) unless issue.description.nil?
+        when 'notes'
+          issue.journals.each do |journal|
+            doc.bookmarks[bookmark].insert_text_after("##{journal.indice} - #{format_time(journal.created_on)} - #{journal.user}\n")
+            doc.bookmarks[bookmark].insert_text_after("#{journal.notes}\n\n\n") unless issue.journals.first.notes.nil?
+          end
         when 'status'
           doc.bookmarks[bookmark].insert_text_after(issue.status.name) unless issue.status.nil?
         when 'priority'
