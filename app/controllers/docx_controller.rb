@@ -4,16 +4,32 @@ class DocxController < ApplicationController
   #unloadable
 
   def template_upload
+    reset_template_names #updates names for version 1.1.0
+
+    tracker = Tracker.find_by_name(params[:tracker])
     use_for_all = params[:use_for_all]
     uploaded_io = params[:template]
-    filename = params[:tracker] + '.docx'
-    upload_file(filename, uploaded_io)
+    if params[:template_action] == 'Add new template'
+      append_template = true
+    else
+      append_template = false
+      remove_templates_for(tracker)
+    end
+
+    upload_file(tracker, uploaded_io, append_template)
 
     if use_for_all == '1'
-      source = Rails.root.join('files', 'export_docx', 'templates', filename)
-      Tracker.all.each do |tracker|
-        dest = Rails.root.join('files', 'export_docx', 'templates', tracker.name + '.docx')
-        FileUtils.copy_file(source, dest) unless source == dest
+      source = list_templates_for(tracker).last
+      Tracker.all.each do |t|
+        unless t == tracker
+          if append_template
+            dest = 'files/export_docx/templates/' + t.name + (list_templates_for(t).count + 1).to_s + '.docx'
+          else
+            dest = 'files/export_docx/templates/' + t.name + '1.docx'
+            remove_templates_for(t)
+          end
+          FileUtils.copy_file(source, dest)
+        end
       end
     end
 
@@ -21,8 +37,7 @@ class DocxController < ApplicationController
   end
   
   def template_download
-    tracker = params[:tracker]
-    path_to_file = 'files/export_docx/templates/' + tracker + '.docx'
+    path_to_file = params[:path]
     if File.exist?(path_to_file)
       send_file(path_to_file)
     else
@@ -33,25 +48,16 @@ class DocxController < ApplicationController
   
   def issue_export_docx
     issue = Issue.find(params[:id])
-    issue_to_docx(issue)
+    if params[:file].present?
+      template_path = 'files/export_docx/templates/' + params[:file]
+    else
+      template_path = list_templates_for(issue.tracker).last
+    end
+    issue_to_docx(issue, template_path)
     path_to_file = 'files/export_docx/export/' + issue.project.name + ' - ' + issue.tracker.name + ' #' + issue.id.to_s + '.docx'
     if File.exist?(path_to_file)
       send_file(path_to_file)
     end
   end
-
-  private
-
-    def upload_file(filename, uploaded_io)
-      if File.extname(uploaded_io.original_filename) == '.docx'
-        folder_structure
-        File.open(Rails.root.join('files', 'export_docx', 'templates', filename), 'wb') do |file|
-          file.write(uploaded_io.read)
-          flash[:notice] = filename + ' uploaded successfully.'
-        end
-      else
-        flash[:error] = 'Template must be a .docx file.'
-      end
-    end
   
 end

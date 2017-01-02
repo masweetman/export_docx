@@ -1,1 +1,13 @@
-.icon-word { background-image: url(../images/word.png); }
+.icon-word-button {
+  background-color: Transparent!important;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+  background-image: url(../images/word.png);
+}
+
+.icon-word {
+  background-image: url(../images/word.png);
+}
+
+.fake-button { padding:0;border:none;display:inline; }

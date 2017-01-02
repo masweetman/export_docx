@@ -2,14 +2,63 @@ require 'docx'
 
 module DocxHelper
 
+  def reset_template_names
+    templates = list_templates
+    templates.each do |t|
+      unless t.gsub('.docx', '').last.to_i > 0
+        source = t
+        dest = t.gsub('.docx', '1.docx')
+        FileUtils.copy_file(source, dest)
+        FileUtils.rm source
+      end
+    end
+  end
+
+  def upload_file(tracker, uploaded_io, append_template)
+    if append_template
+      filename = tracker.name + (list_templates_for(tracker).count + 1).to_s + '.docx'
+    else
+      filename = tracker.name + '1.docx'
+    end
+
+    if File.extname(uploaded_io.original_filename) == '.docx'
+      folder_structure
+      File.open(Rails.root.join('files', 'export_docx', 'templates', filename), 'wb') do |file|
+        file.write(uploaded_io.read)
+        flash[:notice] = filename + ' uploaded successfully.'
+      end
+    else
+      flash[:error] = 'Template must be a .docx file.'
+    end
+  end
+
+  def remove_templates_for(tracker)
+    list_templates_for(tracker).each do |t|
+      FileUtils.rm t
+    end
+  end
+
+  def list_templates
+    Dir.glob 'files/export_docx/templates/*.docx'
+  end
+
+  def list_templates_for(tracker)
+    templates = []
+    list_templates.each do |template|
+      filename = template.gsub('files/export_docx/templates/', '')
+      templates << template if filename[0..tracker.name.length - 1] == tracker.name && (filename[tracker.name.length].to_i > 0 || filename[tracker.name.length] == '.')
+    end
+    return templates
+  end
+
   def folder_structure
     FileUtils.mkdir_p 'files/export_docx/templates'
     FileUtils.mkdir_p 'files/export_docx/export'
   end
 
-  def issue_to_docx(issue)
+  def issue_to_docx(issue, template_path)
     FileUtils.rm_rf(Dir.glob('files/export_docx/export/*'))
-    path_to_file = 'files/export_docx/templates/' + issue.tracker.name + '.docx'
+    path_to_file = template_path.to_s
     if File.exist?(path_to_file)
       doc = Docx::Document.open(path_to_file)
       doc.bookmarks.keys.each do |bookmark|

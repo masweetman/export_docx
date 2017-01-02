@@ -1,6 +1,28 @@
+<% tracker = @issue.tracker %>
+
+<% files = [] %>
+<% Dir.glob('files/export_docx/templates/*.docx').each do |path| %>
+  <% filename = path.gsub('files/export_docx/templates/', '') %>
+  <% files << filename if filename[0..tracker.name.length - 1] == tracker.name && (filename[tracker.name.length].to_i > 0 || filename[tracker.name.length] == '.') %>
+<% end %>
+
 <div class="contextual">
+
+<% if files.count == 1 %>
+  <%= link_to 'Export', { :controller => 'docx', :action => 'issue_export_docx', :id => @issue.id }, :class => 'icon icon-word' %>
+<% end %>
+
+<% if files.count > 1 %>
+  <%= form_tag({ :controller => 'docx', :action => 'issue_export_docx', :id => @issue.id }, :method => :get) do %>
+      <strong>Template:</strong>
+      <%= hidden_field_tag :id, @issue.id %>
+      <%= select_tag(:file, options_for_select(files, params[:file]), :onchange => params[:file]) %>
+      <%= submit_tag 'Export', :class => 'icon icon-word-button' %>
+  <% end %>
+<% end %>
+
 <%= link_to l(:button_edit), edit_issue_path(@issue), :onclick => 'showAndScrollTo("update", "issue_notes"); return false;', :class => 'icon icon-edit', :accesskey => accesskey(:edit) if @issue.editable? %>
-<%= link_to 'Export', { :controller => 'docx', :action => 'issue_export_docx', :id => @issue.id }, :class => 'icon icon-word' %>
+
 <%= link_to l(:button_log_time), new_issue_time_entry_path(@issue), :class => 'icon icon-time-add' if User.current.allowed_to?(:log_time, @project) %>
 <%= watcher_link(@issue, User.current) %>
 <%= link_to l(:button_copy), project_copy_issue_path(@project, @issue), :class => 'icon icon-copy' if User.current.allowed_to?(:copy_issues, @project) && Issue.allowed_target_projects.any? %>

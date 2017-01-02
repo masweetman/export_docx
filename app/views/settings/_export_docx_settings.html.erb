@@ -11,6 +11,10 @@
     <%= file_field_tag :template %>
   </p>
   <p>
+    <label>Action:</label>
+    <%= select_tag :template_action, options_for_select(['Replace existing template', 'Add new template'], :onchange => params[:template_action]) %>
+  </p>
+  <p>
     <label>Use for all trackers:</label>
     <%= check_box_tag :use_for_all %>
   </p>
@@ -27,12 +31,18 @@
   </tr></thead>
 
   <% @trackers.each do |tracker| %>
-    <% path_to_file = 'files/export_docx/templates/' + tracker.name + '.docx' %>
+
+    <% paths = [] %>
+    <% Dir.glob('files/export_docx/templates/*.docx').each do |path| %>
+      <% filename = path.gsub('files/export_docx/templates/', '') %>
+      <% paths << path if filename[0..tracker.name.length - 1] == tracker.name && (filename[tracker.name.length].to_i > 0 || filename[tracker.name.length] == '.') %>
+    <% end %>
+
     <tr class="<%= cycle("odd", "even") %>">
       <td><%= tracker.name %></td>
       <td>
-        <% if File.exist?(path_to_file) %>
-          <%= link_to 'Download', { :controller => 'docx', :action => 'template_download', :tracker => tracker.name } %>
+        <% paths.each do |path_to_file| %>
+          <p><%= link_to path_to_file.gsub('files/export_docx/templates/', ''), { :controller => 'docx', :action => 'template_download', :path => path_to_file } %></p>
         <% end %>
       </td>
     </tr>
