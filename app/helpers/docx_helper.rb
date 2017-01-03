@@ -79,12 +79,13 @@ module DocxHelper
         when 'notes'
           lines = []
           index = 1
-          issue.journals.each do |journal|
+          issue.journals.each.with_index do |journal, i|
             lines << "##{index} - #{format_time(journal.created_on)} - #{journal.user}"
             journal.details.each do |detail|
               lines << "- " + show_detail(detail, true)
             end
             lines += journal.notes.lines.map(&:chomp)
+            lines << "" if i < issue.journals.size - 1
             index += 1
           end
           doc.bookmarks[bookmark].insert_multiple_lines(lines)
