@@ -84,7 +84,7 @@ module DocxHelper
             journal.details.each do |detail|
               lines << "- " + show_detail(detail, true)
             end
-            lines += journal.notes.lines.map(&:chomp)
+            lines += journal.notes.lines.map(&:chomp) if journal.notes
             lines << "" if i < issue.journals.size - 1
             index += 1
           end
