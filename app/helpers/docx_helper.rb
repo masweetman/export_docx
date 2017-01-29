@@ -102,13 +102,13 @@ module DocxHelper
         when 'target_version', 'fixed_version'
           doc.bookmarks[bookmark].insert_text_after(issue.fixed_version.name) unless issue.fixed_version.nil?
         when 'start_date'
-          doc.bookmarks[bookmark].insert_text_after(issue.start_date.strftime('%m/%d/%Y')) unless issue.start_date.nil?
+          doc.bookmarks[bookmark].insert_text_after(format_date(issue.start_date)) unless issue.start_date.nil?
         when 'due_date'
-          doc.bookmarks[bookmark].insert_text_after(issue.due_date.strftime('%m/%d/%Y')) unless issue.due_date.nil?
+          doc.bookmarks[bookmark].insert_text_after(format_date(issue.due_date)) unless issue.due_date.nil?
         when 'created_on'
-          doc.bookmarks[bookmark].insert_text_after(issue.created_on.strftime('%m/%d/%Y')) unless issue.created_on.nil?
+          doc.bookmarks[bookmark].insert_text_after(format_date(issue.created_on)) unless issue.created_on.nil?
         when 'closed_on'
-          doc.bookmarks[bookmark].insert_text_after(issue.closed_on.strftime('%m/%d/%Y')) unless issue.closed_on.nil?
+          doc.bookmarks[bookmark].insert_text_after(format_date(issue.closed_on)) unless issue.closed_on.nil?
         when 'percent_done', 'done_ratio'
           doc.bookmarks[bookmark].insert_text_after(issue.done_ratio.to_s + '%') unless issue.done_ratio.nil?
         when 'estimated_time', 'estimated_hours'
@@ -140,7 +140,7 @@ module DocxHelper
                 doc.bookmarks[bookmark].insert_text_after(Version.find(issue.custom_field_value(custom_field.id)).to_s)
               end
             elsif custom_field.field_format == 'date'
-              doc.bookmarks[bookmark].insert_text_after(issue.custom_field_value(custom_field.id).to_date.strftime('%m/%d/%Y'))
+              doc.bookmarks[bookmark].insert_text_after(format_date(issue.custom_field_value(custom_field.id).to_date))
             elsif custom_field.field_format == 'bool'
               if doc.bookmarks[bookmark].get_run_before.node.xpath('descendant::*').last.attributes['val'].nil?
                 if issue.custom_field_value(custom_field.id) == '1'
