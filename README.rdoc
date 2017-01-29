@@ -13,3 +13,7 @@ This Redmine plugin allows you to export issues to Microsoft Word files.
 * Create a Micorsoft Word template. Refer to <code>template_example.docx</code> for details.
 * Go to Administration --> Plugins --> Export DOCX --> Configure
 * Upload your template
+
+== HTML tags
+
+This plugin is only meant for use with plain text. Markdown and Textile content will not be translated. HTML tags used with plugins such as redmine_ckeditor will not be translated. Maybe someone else can develop those features! But I have no plans to do it.
