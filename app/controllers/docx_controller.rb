@@ -1,7 +1,5 @@
-include DocxHelper
-
 class DocxController < ApplicationController
-  #unloadable
+  include DocxHelper
 
   def template_upload
     reset_template_names #updates names for version 1.1.0
