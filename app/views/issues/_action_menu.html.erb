@@ -3,7 +3,7 @@
 <% files = [] %>
 <% Dir.glob('files/export_docx/templates/*.docx').each do |path| %>
   <% filename = path.gsub('files/export_docx/templates/', '') %>
-  <% files << filename if filename[0..tracker.name.length - 1] == tracker.name && (filename[tracker.name.length].to_i > 0 || filename[tracker.name.length] == '.') %>
+  <% files << filename if filename[0..tracker.name.length - 1].downcase.gsub(' ', '-') == tracker.name.downcase.gsub(' ', '-') && (filename[tracker.name.length].to_i > 0 || filename[tracker.name.length] == '.') %>
 <% end %>
 
 <div class="contextual">

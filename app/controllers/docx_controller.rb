@@ -23,9 +23,9 @@ class DocxController < ApplicationController
       Tracker.all.each do |t|
         unless t == tracker
           if append_template
-            dest = 'files/export_docx/templates/' + t.name + (list_templates_for(t).count + 1).to_s + '.docx'
+            dest = 'files/export_docx/templates/' + t.name.downcase.gsub(' ','-') + (list_templates_for(t).count + 1).to_s + '.docx'
           else
-            dest = 'files/export_docx/templates/' + t.name + '1.docx'
+            dest = 'files/export_docx/templates/' + t.name.downcase.gsub(' ','-') + '1.docx'
             remove_templates_for(t)
           end
           FileUtils.copy_file(source, dest)
@@ -39,7 +39,7 @@ class DocxController < ApplicationController
   def template_download
     path_to_file = params[:path]
     if File.exist?(path_to_file)
-      send_file(path_to_file)
+      send_file(path_to_file, :disposition => 'attachment')
     else
       flash[:error] = 'There is no template for ' + issue.tracker.name + ' issues.'
       redirect_to plugin_settings_path(Redmine::Plugin.find('export_docx'))
@@ -54,9 +54,9 @@ class DocxController < ApplicationController
       template_path = list_templates_for(issue.tracker).last
     end
     issue_to_docx(issue, template_path)
-    path_to_file = 'files/export_docx/export/' + issue.project.name + ' - ' + issue.tracker.name + ' #' + issue.id.to_s + '.docx'
+    path_to_file = 'files/export_docx/export/export.docx'
     if File.exist?(path_to_file)
-      send_file(path_to_file)
+      send_file(path_to_file, :filename => "#{issue.project.identifier}-#{issue.id}.docx", :disposition => 'attachment')
     end
   end
   

@@ -18,9 +18,9 @@ module DocxHelper
 
   def upload_file(tracker, uploaded_io, append_template)
     if append_template
-      filename = tracker.name + (list_templates_for(tracker).count + 1).to_s + '.docx'
+      filename = tracker.name.downcase.gsub(' ', '') + (list_templates_for(tracker).count + 1).to_s + '.docx'
     else
-      filename = tracker.name + '1.docx'
+      filename = tracker.name.downcase.gsub(' ', '') + '1.docx'
     end
 
     if File.extname(uploaded_io.original_filename) == '.docx'
@@ -48,7 +48,7 @@ module DocxHelper
     templates = []
     list_templates.each do |template|
       filename = template.gsub('files/export_docx/templates/', '')
-      templates << template if filename[0..tracker.name.length - 1] == tracker.name && (filename[tracker.name.length].to_i > 0 || filename[tracker.name.length] == '.')
+      templates << template if filename[0..tracker.name.length - 1].downcase.gsub(' ','-') == tracker.name.downcase.gsub(' ','-') && (filename[tracker.name.length].to_i > 0 || filename[tracker.name.length] == '.')
     end
     return templates
   end
@@ -59,7 +59,6 @@ module DocxHelper
   end
 
   def issue_to_docx(issue, template_path)
-    FileUtils.rm_rf(Dir.glob('files/export_docx/export/*'))
     path_to_file = template_path.to_s
     if File.exist?(path_to_file)
       doc = Docx::Document.open(path_to_file)
@@ -157,7 +156,7 @@ module DocxHelper
           end
         end
       end
-      doc.save('files/export_docx/export/' + issue.project.name + ' - ' + issue.tracker.name + ' #' + issue.id.to_s + '.docx')
+      doc.save('files/export_docx/export/export.docx')
     else
       flash[:error] = 'There is no template for ' + issue.tracker.name + ' issues. Please notify your Redmine administrator.'
       redirect_to issue
