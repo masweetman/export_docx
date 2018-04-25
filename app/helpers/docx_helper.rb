@@ -116,7 +116,7 @@ module DocxHelper
           doc.bookmarks[bookmark].insert_text_after(issue.spent_hours.to_s) unless issue.spent_hours.nil?
         else
           #write custom issue fields
-          custom_field = CustomField.find_by_name(bookmark.tr('_',' '))
+          custom_field = CustomField.where("name LIKE ?", bookmark.tr('_','%')).first
           unless custom_field.nil? || issue.custom_field_value(custom_field.id).nil? || issue.custom_field_value(custom_field.id).empty? || issue.custom_field_value(custom_field.id).first.empty?
             if custom_field.field_format == 'text'
               doc.bookmarks[bookmark].insert_multiple_lines(issue.custom_field_value(custom_field.id).lines.map(&:chomp))
