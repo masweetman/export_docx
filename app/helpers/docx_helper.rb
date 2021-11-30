@@ -18,9 +18,9 @@ module DocxHelper
 
   def upload_file(tracker, uploaded_io, append_template)
     if append_template
-      filename = tracker.name.downcase.gsub(' ', '') + (list_templates_for(tracker).count + 1).to_s + '.docx'
+      filename = tracker.name.downcase.gsub(' ', '-') + (list_templates_for(tracker).count + 1).to_s + '.docx'
     else
-      filename = tracker.name.downcase.gsub(' ', '') + '1.docx'
+      filename = tracker.name.downcase.gsub(' ', '-') + '1.docx'
     end
 
     if File.extname(uploaded_io.original_filename) == '.docx'
